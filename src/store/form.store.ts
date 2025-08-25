@@ -286,7 +286,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
 			} catch (error) {
 				console.error('❌ CRITICAL ERROR: Failed to send complete form data to API:', error);
-				console.error('❌ Error details:', error.message);
+		 
 
 				// Set error state
 				set((state) => ({
