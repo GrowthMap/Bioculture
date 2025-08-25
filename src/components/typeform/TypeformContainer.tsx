@@ -2,7 +2,7 @@
 
 import { AnimatePresence } from 'framer-motion';
 import { useFormStore } from '@/store/form.store';
-import { APPLICATION_FLOWS, ContactInfo } from '@/types/form.types';
+import {  ContactInfo } from '@/types/form.types';
 import { useEffect, useState, useRef, useCallback } from 'react';
 import FormQuestion from './FormQuestion';
 import MultipleChoiceQuestion from './MultipleChoiceQuestion';
@@ -10,6 +10,9 @@ import TextInputQuestion from './TextInputQuestion';
 import ContactMatrixQuestion from './ContactMatrixQuestion';
 import CalendlyQuestion from './CalendlyQuestion';
 import WelcomeScreen from './WelcomeScreen';
+import FlowSelectionScreen from './FlowSelectionScreen';
+import StepNavigator from './StepNavigator';
+import { FormFlow } from '@/types/form.types';
 
 export default function TypeformContainer() {
   const {
@@ -20,9 +23,12 @@ export default function TypeformContainer() {
     previousQuestion,
     getCurrentQuestion,
     startForm,
+    shouldCompleteFlow,
+    completeForm,
   } = useFormStore();
 
   const [currentAnswer, setCurrentAnswer] = useState<string | string[] | ContactInfo>('');
+  const [showFlowSelection, setShowFlowSelection] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const scrollTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const lastScrollTime = useRef(0);
@@ -30,8 +36,13 @@ export default function TypeformContainer() {
   const currentQuestion = getCurrentQuestion();
 
   const handleStart = () => {
+    setShowFlowSelection(true);
+  };
+
+  const handleFlowSelect = (flow: FormFlow) => {
     startForm();
-    setCurrentFlow(APPLICATION_FLOWS[0]);
+    setCurrentFlow(flow);
+    setShowFlowSelection(false);
   };
 
   useEffect(() => {
@@ -59,14 +70,23 @@ export default function TypeformContainer() {
   };
 
   const handleNext = () => {
-    nextQuestion();
+    // Check if this is the last question for this flow type
+    if (shouldCompleteFlow()) {
+      console.log('🎯 Last question reached - triggering form completion...');
+      console.log('📊 Current question:', getCurrentQuestion()?.id);
+      console.log('📝 Total answers:', formState.answers.length);
+      completeForm();
+    } else {
+      console.log('➡️ Moving to next question...');
+      nextQuestion();
+    }
   };
 
   const handlePrev = () => {
     previousQuestion();
   };
 
-  const isValid = () => {
+  const isValid = (): boolean => {
     if (!currentQuestion) return false;
     
     if (!currentQuestion.required) return true;
@@ -77,9 +97,12 @@ export default function TypeformContainer() {
           ? currentAnswer.length > 0 
           : !!currentAnswer;
       case 'contact_matrix':
-        return currentAnswer?.firstName && 
-               currentAnswer?.lastName && 
-               currentAnswer?.email;
+        return typeof currentAnswer === 'object' && 
+               currentAnswer !== null && 
+               !Array.isArray(currentAnswer) &&
+               Boolean((currentAnswer as ContactInfo).firstName) && 
+               Boolean((currentAnswer as ContactInfo).lastName) && 
+               Boolean((currentAnswer as ContactInfo).email);
       case 'calendly':
         return !!currentAnswer;
       default:
@@ -143,9 +166,9 @@ export default function TypeformContainer() {
         return (
           <MultipleChoiceQuestion
             options={currentQuestion.options || []}
-            value={currentAnswer}
+            value={currentAnswer as string | string[]}
             onChange={handleAnswerChange}
-            multiple={currentQuestion.id === 'retreat_dates'}
+            multiple={['brand_retreat_dates', 'guest_retreat_dates', 'creator_retreat_dates', 'sponsorship_opportunities'].includes(currentQuestion.id)}
           />
         );
       case 'short_text':
@@ -156,7 +179,7 @@ export default function TypeformContainer() {
         return (
           <TextInputQuestion
             type={currentQuestion.type}
-            value={currentAnswer}
+            value={currentAnswer as string}
             onChange={handleAnswerChange}
             placeholder={currentQuestion.placeholder}
           />
@@ -164,14 +187,14 @@ export default function TypeformContainer() {
       case 'contact_matrix':
         return (
           <ContactMatrixQuestion
-            value={currentAnswer}
+            value={currentAnswer as ContactInfo}
             onChange={handleAnswerChange}
           />
         );
       case 'calendly':
         return (
           <CalendlyQuestion
-            value={currentAnswer}
+            value={currentAnswer as string}
             onChange={handleAnswerChange}
           />
         );
@@ -181,20 +204,84 @@ export default function TypeformContainer() {
   };
 
   // Show welcome screen if form hasn't started
-  if (!formState.isStarted) {
+  if (!formState.isStarted && !showFlowSelection) {
     return <WelcomeScreen onStart={handleStart} />;
   }
 
-  if (formState.isCompleted) {
+  // Show flow selection screen
+  if (showFlowSelection) {
+    return <FlowSelectionScreen onSelectFlow={handleFlowSelect} />;
+  }
+
+
+  if(formState.isCompleted) {
+    window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
+    return null;
+  }
+
+  // Handle form submission states
+  if (formState.isSubmitting || formState.isCompleted || formState.submissionError) {
     return (
       <div className="min-h-screen bg-[#222222] flex items-center justify-center p-4">
         <div className="text-center">
-          <h1 className="text-4xl font-bold text-white mb-4 font-sans">
-            Thank you!
-          </h1>
-          <p className="text-gray-400 text-lg">
-            Your application has been submitted successfully.
-          </p>
+          {formState.isSubmitting && (
+            <>
+              <div className="w-12 h-12 border-4 border-gray-300 border-t-white rounded-full animate-spin mx-auto mb-6"></div>
+              <h1 className="text-4xl font-bold text-white mb-4 font-sans">
+                Submitting your application...
+              </h1>
+              <p className="text-gray-400 text-lg">
+                Please wait while we process your information.
+              </p>
+            </>
+          )}
+          
+          {formState.isCompleted && !formState.isSubmitting && (
+            <>
+              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4 font-sans">
+                Thank you!
+              </h1>
+              <p className="text-gray-400 text-lg mb-6">
+                Your application has been submitted successfully. Redirecting you to book your vibe check...
+              </p>
+              <button 
+                onClick={() => window.open('https://web.biocultureretreats.com/book-your-vibe-check', '_blank')}
+                className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              >
+                Book Your Vibe Check Now
+              </button>
+            </>
+          )}
+          
+          {formState.submissionError && (
+            <>
+              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
+                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
+                </svg>
+              </div>
+              <h1 className="text-4xl font-bold text-white mb-4 font-sans">
+                Submission Failed
+              </h1>
+              <p className="text-gray-400 text-lg mb-4">
+                {formState.submissionError}
+              </p>
+              <button 
+                onClick={() => {
+                  console.log('🔄 Retry button clicked - attempting form submission again...');
+                  completeForm();
+                }}
+                className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
+              >
+                Try Again
+              </button>
+            </>
+          )}
         </div>
       </div>
     );
@@ -205,7 +292,7 @@ export default function TypeformContainer() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen overflow-hidden"
+      className="min-h-screen overflow-hidden relative"
       style={{ height: '100vh' }}
     >
       <AnimatePresence mode="wait">
@@ -213,13 +300,12 @@ export default function TypeformContainer() {
           key={currentQuestion.id}
           question={currentQuestion}
           onNext={handleNext}
-          onPrev={handlePrev}
-          showPrevious={formState.currentQuestionIndex > 0}
           isValid={isValid()}
         >
           {renderQuestionInput()}
         </FormQuestion>
       </AnimatePresence>
+      <StepNavigator />
     </div>
   );
 }

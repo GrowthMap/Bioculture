@@ -2,124 +2,138 @@
 
 import { motion } from 'framer-motion';
 import { FormQuestion as FormQuestionType } from '@/types/form.types';
-import { ReactNode } from 'react';
+import { ReactNode, useEffect } from 'react';
 
 interface FormQuestionProps {
-  question: FormQuestionType;
-  children: ReactNode;
-  onNext?: () => void;
-  onPrev?: () => void;
-  showPrevious?: boolean;
-  isValid?: boolean;
+	question: FormQuestionType;
+	children: ReactNode;
+	onNext?: () => void;
+	isValid?: boolean;
 }
 
 export default function FormQuestion({
-  question,
-  children,
-  onNext,
-  onPrev,
-  showPrevious = false,
-  isValid = false,
+	question,
+	children,
+	onNext,
+	isValid = false,
 }: FormQuestionProps) {
-  const questionVariants = {
-    enter: {
-      opacity: 0,
-      y: 100,
-    },
-    center: {
-      opacity: 1,
-      y: 0,
-    },
-    exit: {
-      opacity: 0,
-      y: -100,
-    },
-  };
+	// Handle Enter key press
+	useEffect(() => {
+		const handleKeyPress = (event: KeyboardEvent) => {
+			if (event.key === 'Enter' && isValid && onNext) {
+				onNext();
+			}
+		};
 
-  const buttonVariants = {
-    idle: { scale: 1, backgroundColor: '#333333' },
-    hover: { scale: 1.02, backgroundColor: '#444444' },
-    disabled: { scale: 1, backgroundColor: '#1a1a1a', opacity: 0.5 },
-  };
+		document.addEventListener('keydown', handleKeyPress);
+		return () => document.removeEventListener('keydown', handleKeyPress);
+	}, [isValid, onNext]);
 
-  return (
-    <div className="min-h-screen bg-[#222222] flex items-center justify-center p-4">
-      <motion.div
-        className="w-full max-w-2xl"
-        initial="enter"
-        animate="center"
-        exit="exit"
-        variants={questionVariants}
-        transition={{ type: 'tween', duration: 0.7, ease: 'easeInOut' }}
-      >
-        <div className="mb-8">
-          <motion.h1
-            className="text-3xl md:text-4xl font-bold text-white mb-4 font-sans"
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2, duration: 0.6 }}
-          >
-            {question.title}
-          </motion.h1>
-          
-          {question.description && (
-            <motion.p
-              className="text-gray-400 text-lg"
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ delay: 0.3, duration: 0.6 }}
-            >
-              {question.description}
-            </motion.p>
-          )}
-        </div>
+	const questionVariants = {
+		enter: {
+			opacity: 0,
+			y: 100,
+		},
+		center: {
+			opacity: 1,
+			y: 0,
+		},
+		exit: {
+			opacity: 0,
+			y: -100,
+		},
+	};
 
-        <motion.div
-          className="mb-12"
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.4, duration: 0.6 }}
-        >
-          {children}
-        </motion.div>
+	const buttonVariants = {
+		idle: { scale: 1, backgroundColor: '#333333' },
+		hover: { scale: 1.02, backgroundColor: '#444444' },
+		disabled: { scale: 1, backgroundColor: '#1a1a1a', opacity: 0.5 },
+	};
 
-        <motion.div
-          className="flex justify-between items-center"
-          initial={{ opacity: 0 }}
-          animate={{ opacity: 1 }}
-          transition={{ delay: 0.6, duration: 0.6 }}
-        >
-          {showPrevious ? (
-            <motion.button
-              onClick={onPrev}
-              className="px-6 py-3 text-white border border-gray-600 rounded-lg hover:bg-gray-700 transition-colors"
-              whileHover={{ scale: 1.02 }}
-              whileTap={{ scale: 0.98 }}
-            >
-              ← Previous
-            </motion.button>
-          ) : (
-            <div />
-          )}
+	return (
+		<div className="min-h-screen bg-[#222222] flex items-center justify-center p-4">
+			<motion.div
+				className={`w-full ${question.imageUrl ? 'max-w-6xl' : 'max-w-2xl'}`}
+				initial="enter"
+				animate="center"
+				exit="exit"
+				variants={questionVariants}
+				transition={{ type: 'tween', duration: 0.7, ease: 'easeInOut' }}
+			>
+				<div className={`${question.imageUrl ? 'flex items-center gap-12' : ''}`}>
+					<div className="flex-1">
+						<div className="mb-8">
+							<motion.h1
+								className="text-2xl md:text-3xl font-bold text-white mb-4 font-sans"
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
+								transition={{ delay: 0.2, duration: 0.6 }}
+							>
+								{question.title}
+							</motion.h1>
 
-          <motion.button
-            onClick={onNext}
-            disabled={!isValid}
-            className={`px-8 py-3 rounded-lg font-medium text-white transition-all ${
-              isValid
-                ? 'bg-white text-black hover:bg-gray-100'
-                : 'bg-gray-700 text-gray-400 cursor-not-allowed'
-            }`}
-            variants={buttonVariants}
-            initial="idle"
-            whileHover={isValid ? 'hover' : 'disabled'}
-            whileTap={isValid ? { scale: 0.98 } : {}}
-            animate={isValid ? 'idle' : 'disabled'}
-          >
-            Continue →
-          </motion.button>
-        </motion.div>
-      </motion.div>
-    </div>
-  );
+							{question.description && (
+								<motion.p
+									className="text-gray-400 text-lg"
+									initial={{ opacity: 0, y: 10 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ delay: 0.3, duration: 0.6 }}
+								>
+									{question.description}
+								</motion.p>
+							)}
+						</div>
+
+						<motion.div
+							className="mb-8"
+							initial={{ opacity: 0, y: 20 }}
+							animate={{ opacity: 1, y: 0 }}
+							transition={{ delay: 0.4, duration: 0.6 }}
+						>
+							{children}
+						</motion.div>
+
+						<motion.div
+							className="flex items-center gap-3.5"
+							// initial={{ opacity: 0 }}
+							// animate={{ opacity: 1 }}
+							transition={{ delay: 0.6, duration: 0.6 }}
+						>
+							<motion.button
+								initial={{ opacity: 0, scale: 0.9 }}
+								animate={{ opacity: 1, scale: 1 }}
+								transition={{ delay: 0.6, duration: 0.4, ease: 'easeOut' }}
+								onClick={onNext}
+								className="bg-white cursor-pointer text-black px-8 py-2 text-lg font-semibold rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#222222]"
+							>
+								OK
+							</motion.button>
+							<motion.button
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
+								transition={{ delay: 0.8, duration: 0.4 }}
+							>
+								<span className="text-gray-400 text-sm">press Enter ↵</span>
+							</motion.button>
+						</motion.div>
+					</div>
+					
+					{question.imageUrl && (
+						<motion.div
+							className="flex-1 flex items-center justify-center"
+							initial={{ opacity: 0, x: 50 }}
+							animate={{ opacity: 1, x: 0 }}
+							transition={{ delay: 0.2, duration: 0.6 }}
+						>
+							<img 
+								src={question.imageUrl} 
+								alt="Question illustration"
+								className="w-full h-full max-h-screen object-cover rounded-lg"
+							/>
+						</motion.div>
+					)}
+				</div>
+			</motion.div>
+		</div>
+	);
 }

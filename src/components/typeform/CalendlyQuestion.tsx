@@ -98,7 +98,7 @@ export default function CalendlyQuestion({
             whileHover="hover"
             whileTap="tap"
           >
-            I'll schedule this later
+            I&apos;ll schedule this later
           </motion.button>
         </>
       ) : (
@@ -125,11 +125,11 @@ export default function CalendlyQuestion({
           </div>
           
           <h3 className="text-xl font-semibold text-white mb-2 font-sans">
-            Great! You're all set
+            Great! You&apos;re all set
           </h3>
           <p className="text-green-200">
             {value === 'scheduled' 
-              ? "You'll receive a calendar invite shortly with the meeting details."
+              ? "You&apos;ll receive a calendar invite shortly with the meeting details."
               : "You can schedule your call anytime by contacting us directly."
             }
           </p>
