@@ -71,20 +71,23 @@ export default function TypeformContainer() {
   };
 
   const handleNext = () => {
-    // Check if this is the last question for this flow type
+    // First, save the current answer
+    if (currentQuestion && currentAnswer) {
+      setAnswer({
+        questionId: currentQuestion.id,
+        value: currentAnswer,
+      });
+    }
+    
+    // Check if this will be the last question after moving to next
     if (shouldCompleteFlow()) {
       console.log('🎯 Last question reached - triggering form completion...');
       console.log('📊 Current question:', getCurrentQuestion()?.id);
       console.log('📝 Total answers:', formState.answers.length);
       completeForm();
     } else {
-      console.log('➡️ Moving to next question...');
       nextQuestion();
     }
-  };
-
-  const handlePrev = () => {
-    previousQuestion();
   };
 
   const isValid = (): boolean => {
@@ -131,7 +134,7 @@ export default function TypeformContainer() {
         // Scrolling down - go to next step
         if (formState.currentQuestionIndex < (formState.currentFlow?.questions.length || 0) - 1) {
           if (isValid()) {
-            nextQuestion();
+            handleNext(); // Use handleNext instead of nextQuestion to include completion check
             lastScrollTime.current = now;
           }
         }
@@ -215,14 +218,10 @@ export default function TypeformContainer() {
   }
 
 
-  if(formState.isCompleted) {
-    window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
-    // Don't call completeForm again - it's already been called and completed
-    completeForm();
-  }
+  // Remove this block entirely - it causes redundant API calls
 
   // Handle form submission states
-  if (formState.isSubmitting || formState.isCompleted || formState.submissionError) {
+  if (formState.isSubmitting || formState.submissionError) {
     return (
       <div className="min-h-screen bg-[#222222] flex items-center justify-center p-4">
         <div className="text-center">
@@ -235,53 +234,6 @@ export default function TypeformContainer() {
               <p className="text-gray-400 text-lg">
                 Please wait while we process your information.
               </p>
-            </>
-          )}
-          
-          {formState.isCompleted && !formState.isSubmitting && (
-            <>
-              <div className="w-12 h-12 bg-green-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7"></path>
-                </svg>
-              </div>
-              <h1 className="text-4xl font-bold text-white mb-4 font-sans">
-                Thank you!
-              </h1>
-              <p className="text-gray-400 text-lg mb-6">
-                Your application has been submitted successfully. Redirecting you to book your vibe check...
-              </p>
-              <button 
-                onClick={() => window.open('https://web.biocultureretreats.com/book-your-vibe-check', '_blank')}
-                className="bg-white text-black px-6 py-3 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-              >
-                Book Your Vibe Check Now
-              </button>
-            </>
-          )}
-          
-          {formState.submissionError && (
-            <>
-              <div className="w-12 h-12 bg-red-500 rounded-full flex items-center justify-center mx-auto mb-6">
-                <svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M6 18L18 6M6 6l12 12"></path>
-                </svg>
-              </div>
-              <h1 className="text-4xl font-bold text-white mb-4 font-sans">
-                Submission Failed
-              </h1>
-              <p className="text-gray-400 text-lg mb-4">
-                {formState.submissionError}
-              </p>
-              <button 
-                onClick={() => {
-                  console.log('🔄 Retry button clicked - clearing error and returning to form...');
-                  clearSubmissionError();
-                }}
-                className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
-              >
-                Try Again
-              </button>
             </>
           )}
         </div>

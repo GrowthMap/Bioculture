@@ -155,26 +155,21 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
 	// Add a method to check if we should complete the flow based on the selected flow type
 	shouldCompleteFlow: () => {
-		const { currentQuestionIndex, currentFlow, answers } = get().formState;
+		const { currentQuestionIndex, currentFlow } = get().formState;
 		if (!currentFlow) return false;
 
 		const currentQuestion = currentFlow.questions[currentQuestionIndex];
 		if (!currentQuestion) return false;
 
-		// Get the application type answer
-		const appTypeAnswer = answers.find(a => a.questionId === 'application_type');
-		if (!appTypeAnswer) return false;
-
-		const appType = appTypeAnswer.value as string;
-
-		// Define the last question for each flow type
+		// Define the last question for each flow type using flow name
 		const lastQuestions = {
 			'Brand Sponsor': 'brand_retreat_dates',
 			'Guest': 'guest_retreat_dates', 
-			'Content Creator (100k+ audience)': 'creator_retreat_dates'
+			'Content Creator': 'creator_retreat_dates'
 		};
+		console.log(currentQuestion.id , lastQuestions[currentFlow.name as keyof typeof lastQuestions], 'shouldCompleteFlow check');
 
-		return currentQuestion.id === lastQuestions[appType as keyof typeof lastQuestions];
+		return currentQuestion.id === lastQuestions[currentFlow.name as keyof typeof lastQuestions];
 	},
 
 	previousQuestion: () =>
@@ -214,10 +209,10 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				console.log('📍 API Endpoint: https://primary-production-968c.up.railway.app/webhook/bioculture-application');
 
 				// Prepare comprehensive payload with all answers including question titles
-				const answersWithTitles = answers.map(answer => {
+				const answersWithTitles = answers.map((answer, index) => {
 					const question = currentFlow.questions.find(q => q.id === answer.questionId);
 					return {
-						questionId: answer.questionId,
+						questionId: index + 1,
 						questionTitle: question?.title || answer.questionId,
 						value: answer.value
 					};
@@ -229,19 +224,18 @@ export const useFormStore = create<FormStore>((set, get) => ({
 					answers: answersWithTitles,
 					submissionTimestamp: new Date().toISOString(),
 					// Extract commonly used fields for easier processing
-					contactInfo: answers.find(a => a.questionId === 'contact_info')?.value || null,
-					companyWebsite: answers.find(a => a.questionId === 'company_website')?.value || null,
-					instagramHandle: answers.find(a => 
-						a.questionId === 'guest_instagram_handle' || 
-						a.questionId === 'creator_instagram_handle'
-					)?.value || null,
-					retreatDates: answers.find(a => 
-						a.questionId === 'brand_retreat_dates' || 
-						a.questionId === 'guest_retreat_dates' || 
-						a.questionId === 'creator_retreat_dates'
-					)?.value || null,
+					// contactInfo: answers.find(a => a.questionId === 'contact_info')?.value || null,
+					// companyWebsite: answers.find(a => a.questionId === 'company_website')?.value || null,
+					// instagramHandle: answers.find(a => 
+					// a.questionId === 'guest_instagram_handle' || 
+					// a.questionId === 'creator_instagram_handle'
+					// )?.value || null,
+					// retreatDates: answers.find(a => 
+					// a.questionId === 'brand_retreat_dates' || 
+					// a.questionId === 'guest_retreat_dates' || 
+					// a.questionId === 'creator_retreat_dates'
+					// )?.value || null,
 					accommodationPreference: answers.find(a => a.questionId === 'accommodation_preference')?.value || null,
-					sponsorshipOpportunities: answers.find(a => a.questionId === 'sponsorship_opportunities')?.value || null
 				};
 
 				console.log('📦 Complete form payload:', JSON.stringify(payload, null, 2));
@@ -281,21 +275,19 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				}));
 
 				// Redirect to booking page after successful submission
-				console.log('🔄 Preparing redirect in 2 seconds...');
-				setTimeout(() => {
-					console.log('🔗 Redirecting to booking page...');
-					try {
-						window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
-					} catch (error) {
-						console.error('❌ Failed to redirect to booking page:', error);
-						// Fallback to direct navigation
-						window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
-					}
-				}, 2000); // 2-second delay to show success message
+				console.log('🔄 Preparing redirect in 100 milliseconds...');
+				console.log('🔗 Redirecting to booking page...');
+				try {
+					window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
+				} catch (error) {
+					console.error('❌ Failed to redirect to booking page:', error);
+					// Fallback to direct navigation
+					window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
+				}
 
 			} catch (error) {
 				console.error('❌ CRITICAL ERROR: Failed to send complete form data to API:', error);
-		 
+
 
 				// Set error state
 				set((state) => ({
@@ -310,7 +302,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
 			console.log('⚠️ No form data to submit (missing flow or answers)');
 			console.log('Current flow:', currentFlow);
 			console.log('Answers count:', answers.length);
-			
+
 			// No data to submit, just complete
 			set((state) => ({
 				formState: { 

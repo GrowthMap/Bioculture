@@ -3,6 +3,7 @@
 import { motion } from 'framer-motion';
 import { FormQuestion as FormQuestionType } from '@/types/form.types';
 import { ReactNode, useEffect } from 'react';
+import Image from 'next/image';
 
 interface FormQuestionProps {
 	question: FormQuestionType;
@@ -131,8 +132,10 @@ export default function FormQuestion({
 								animate={{ opacity: 1, x: 0 }}
 								transition={{ delay: 0.2, duration: 0.6 }}
 							>
-								<img 
-									src={question.imageUrl} 
+								<Image
+									width={500}
+									height={500}
+									src={question.imageUrl}
 									alt="Question illustration"
 									className="w-full h-full max-h-screen object-cover rounded-lg"
 								/>
