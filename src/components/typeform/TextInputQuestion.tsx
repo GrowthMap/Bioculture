@@ -28,6 +28,18 @@ export default function TextInputQuestion({
     onChange(newValue);
   };
 
+  const handleKeyDown = (event: React.KeyboardEvent) => {
+    // Allow Shift + Enter for new lines in textarea
+    if (event.key === 'Enter' && event.shiftKey && type === 'long_text') {
+      // Allow default behavior (new line)
+      return;
+    }
+    // Prevent form submission on Enter for input fields
+    if (event.key === 'Enter' && type !== 'long_text') {
+      event.preventDefault();
+    }
+  };
+
   const inputVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
@@ -61,6 +73,7 @@ export default function TextInputQuestion({
         <motion.textarea
           value={inputValue}
           onChange={(e) => handleInputChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           placeholder={inputProps.placeholder}
@@ -76,6 +89,7 @@ export default function TextInputQuestion({
           {...inputProps}
           value={inputValue}
           onChange={(e) => handleInputChange(e.target.value)}
+          onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
           className={`w-full p-4 bg-transparent border-2 rounded-lg text-white text-lg font-sans focus:outline-none transition-all ${

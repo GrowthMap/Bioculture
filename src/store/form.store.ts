@@ -213,11 +213,20 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				console.log('🌐 Starting API call to bioculture-application webhook...');
 				console.log('📍 API Endpoint: https://primary-production-968c.up.railway.app/webhook/bioculture-application');
 
-				// Prepare comprehensive payload with all answers
+				// Prepare comprehensive payload with all answers including question titles
+				const answersWithTitles = answers.map(answer => {
+					const question = currentFlow.questions.find(q => q.id === answer.questionId);
+					return {
+						questionId: answer.questionId,
+						questionTitle: question?.title || answer.questionId,
+						value: answer.value
+					};
+				});
+
 				const payload = {
 					applicationFlow: currentFlow.name,
 					flowId: currentFlow.id,
-					answers: answers,
+					answers: answersWithTitles,
 					submissionTimestamp: new Date().toISOString(),
 					// Extract commonly used fields for easier processing
 					contactInfo: answers.find(a => a.questionId === 'contact_info')?.value || null,
@@ -314,6 +323,15 @@ export const useFormStore = create<FormStore>((set, get) => ({
 	},
 
 	resetForm: () => set({ formState: initialState }),
+
+	clearSubmissionError: () =>
+		set((state) => ({
+			formState: { 
+				...state.formState, 
+				submissionError: null,
+				isSubmitting: false
+			},
+		})),
 
 	startForm: () =>
 		set((state) => ({

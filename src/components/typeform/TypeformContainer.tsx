@@ -25,6 +25,7 @@ export default function TypeformContainer() {
     startForm,
     shouldCompleteFlow,
     completeForm,
+    clearSubmissionError,
   } = useFormStore();
 
   const [currentAnswer, setCurrentAnswer] = useState<string | string[] | ContactInfo>('');
@@ -216,7 +217,8 @@ export default function TypeformContainer() {
 
   if(formState.isCompleted) {
     window.location.replace('https://web.biocultureretreats.com/book-your-vibe-check');
-    return null;
+    // Don't call completeForm again - it's already been called and completed
+    completeForm();
   }
 
   // Handle form submission states
@@ -273,8 +275,8 @@ export default function TypeformContainer() {
               </p>
               <button 
                 onClick={() => {
-                  console.log('🔄 Retry button clicked - attempting form submission again...');
-                  completeForm();
+                  console.log('🔄 Retry button clicked - clearing error and returning to form...');
+                  clearSubmissionError();
                 }}
                 className="bg-white text-black px-6 py-2 rounded-lg font-medium hover:bg-gray-100 transition-colors"
               >

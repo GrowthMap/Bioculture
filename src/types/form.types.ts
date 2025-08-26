@@ -74,6 +74,7 @@ export interface FormStore {
 	previousQuestion: () => void;
 	completeForm: () => void;
 	resetForm: () => void;
+	clearSubmissionError: () => void;
 	startForm: () => void;
 	getCurrentQuestion: () => FormQuestion | null;
 	shouldCompleteFlow: () => boolean;
