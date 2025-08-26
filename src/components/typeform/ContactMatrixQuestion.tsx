@@ -50,13 +50,13 @@ export default function ContactMatrixQuestion({
 
 	return (
 		<motion.div
-			className="space-y-6"
+			className="space-y-8 px-[2px]"
 			variants={containerVariants}
 			initial="initial"
 			animate="animate"
 		>
 			{fields.map(({ key, label, type, placeholder }) => (
-				<motion.div key={key} variants={fieldVariants} className="relative">
+				<motion.div key={key} variants={fieldVariants} className="relative mb-4">
 					<motion.label
 						className={`block text-sm font-medium mb-2 font-sans transition-colors ${
 							focusedField === key ? 'text-white' : 'text-gray-400'
@@ -76,10 +76,10 @@ export default function ContactMatrixQuestion({
 						onFocus={() => setFocusedField(key)}
 						onBlur={() => setFocusedField(null)}
 						placeholder={placeholder}
-						className={`w-full p-4 bg-transparent border-2 rounded-lg text-white text-lg font-sans focus:outline-none transition-all ${
-							focusedField === key ? 'border-white' : 'border-gray-600'
-						} placeholder:text-gray-500`}
-						whileFocus={{ scale: 1.01 }}
+						className={`w-full px-4 py-5 mx-1 bg-transparent border-2 rounded-lg text-white text-lg font-sans focus:outline-none transition-all ${
+							focusedField === key ? 'border-white shadow-lg' : 'border-gray-600'
+						} placeholder:text-gray-500 hover:border-gray-400`}
+						whileFocus={{ scale: 1.005 }}
 						transition={{ type: 'spring', stiffness: 300, damping: 30 }}
 					/>
 

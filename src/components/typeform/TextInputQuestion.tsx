@@ -43,7 +43,7 @@ export default function TextInputQuestion({
   const inputVariants = {
     initial: { opacity: 0, y: 20 },
     animate: { opacity: 1, y: 0 },
-    focus: { scale: 1.02, borderColor: '#ffffff' },
+    focus: { scale: 1.005, borderColor: '#ffffff' },
   };
 
   const getInputProps = () => {
@@ -63,7 +63,7 @@ export default function TextInputQuestion({
 
   return (
     <motion.div
-      className="relative"
+      className="relative px-[2px] mb-4"
       variants={inputVariants}
       initial="initial"
       animate="animate"
@@ -78,9 +78,9 @@ export default function TextInputQuestion({
           onBlur={() => setIsFocused(false)}
           placeholder={inputProps.placeholder}
           rows={6}
-          className={`w-full p-4 bg-transparent border-2 rounded-lg text-white text-lg font-sans resize-none focus:outline-none transition-all ${
-            isFocused ? 'border-white' : 'border-gray-600'
-          } placeholder:text-gray-500`}
+          className={`w-full px-4 py-5 mx-1 bg-transparent border-2 rounded-lg text-white text-lg font-sans resize-none focus:outline-none transition-all ${
+            isFocused ? 'border-white shadow-lg' : 'border-gray-600'
+          } placeholder:text-gray-500 hover:border-gray-400`}
           animate={isFocused ? 'focus' : 'animate'}
           variants={inputVariants}
         />
@@ -92,9 +92,9 @@ export default function TextInputQuestion({
           onKeyDown={handleKeyDown}
           onFocus={() => setIsFocused(true)}
           onBlur={() => setIsFocused(false)}
-          className={`w-full p-4 bg-transparent border-2 rounded-lg text-white text-lg font-sans focus:outline-none transition-all ${
-            isFocused ? 'border-white' : 'border-gray-600'
-          } placeholder:text-gray-500`}
+          className={`w-full px-4 py-5 mx-1 bg-transparent border-2 rounded-lg text-white text-lg font-sans focus:outline-none transition-all ${
+            isFocused ? 'border-white shadow-lg' : 'border-gray-600'
+          } placeholder:text-gray-500 hover:border-gray-400`}
           animate={isFocused ? 'focus' : 'animate'}
           variants={inputVariants}
         />

@@ -101,7 +101,7 @@ export default function FormQuestion({
 							</motion.div>
 
 							<motion.div
-								className="flex items-center gap-3.5 sticky bottom-0 bg-[#222222] pt-4"
+								className="flex items-center gap-3.5 sticky bottom-0 bg-[#222222] pt-4 px-2"
 								// initial={{ opacity: 0 }}
 								// animate={{ opacity: 1 }}
 								transition={{ delay: 0.6, duration: 0.6 }}
