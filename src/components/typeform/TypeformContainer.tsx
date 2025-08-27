@@ -106,7 +106,8 @@ export default function TypeformContainer() {
                !Array.isArray(currentAnswer) &&
                Boolean((currentAnswer as ContactInfo).firstName) && 
                Boolean((currentAnswer as ContactInfo).lastName) && 
-               Boolean((currentAnswer as ContactInfo).email);
+               Boolean((currentAnswer as ContactInfo).email) &&
+               Boolean((currentAnswer as ContactInfo).phone);
       case 'calendly':
         return !!currentAnswer;
       default:

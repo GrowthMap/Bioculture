@@ -64,7 +64,7 @@ export default function ContactMatrixQuestion({
 						animate={{ color: focusedField === key ? '#ffffff' : '#9ca3af' }}
 					>
 						{label}
-						{(key === 'firstName' || key === 'lastName' || key === 'email') && (
+						{(key === 'firstName' || key === 'lastName' || key === 'email' || key === 'phone') && (
 							<span className="text-red-400 ml-1">*</span>
 						)}
 					</motion.label>

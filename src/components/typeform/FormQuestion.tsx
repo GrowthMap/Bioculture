@@ -130,8 +130,13 @@ export default function FormQuestion({
 									initial={{ opacity: 0, scale: 0.9 }}
 									animate={{ opacity: 1, scale: 1 }}
 									transition={{ delay: 0.6, duration: 0.4, ease: 'easeOut' }}
-									onClick={onNext}
-									className="bg-white cursor-pointer text-black px-8 py-2 text-lg font-semibold rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#222222]"
+									onClick={isValid ? onNext : undefined}
+									disabled={!isValid}
+									className={`px-8 py-2 text-lg font-semibold rounded-md transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#222222] ${
+										isValid 
+											? 'bg-white text-black hover:bg-gray-100 cursor-pointer' 
+											: 'bg-gray-500 text-gray-300 cursor-not-allowed opacity-50'
+									}`}
 								>
 									OK
 								</motion.button>
@@ -140,7 +145,11 @@ export default function FormQuestion({
 									animate={{ opacity: 1 }}
 									transition={{ delay: 0.8, duration: 0.4 }}
 								>
-									<span className="text-gray-400 text-sm">press Enter ↵</span>
+									<span className={`text-sm transition-colors duration-200 ${
+										isValid ? 'text-gray-400' : 'text-gray-600'
+									}`}>
+										press Enter ↵
+									</span>
 								</motion.button>
 							</motion.div>
 						</div>
