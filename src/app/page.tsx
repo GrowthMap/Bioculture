@@ -9,7 +9,7 @@ export default function Home() {
 				alt="BioСulture"
 				width={150}
 				height={40}
-				className="h-14 w-auto absolute top-8 left-1/2 transform -translate-x-1/2 z-50"
+				className="h-18 w-auto z-50  flex items-center justify-center mx-auto "
 			/>
 			<TypeformContainer />
 		</div>

@@ -8,6 +8,7 @@ interface TextInputQuestionProps {
   value?: string;
   onChange: (value: string) => void;
   placeholder?: string;
+  onSubmit?: () => void;
 }
 
 export default function TextInputQuestion({
@@ -15,6 +16,7 @@ export default function TextInputQuestion({
   value = '',
   onChange,
   placeholder = 'Type your answer here...',
+  onSubmit,
 }: TextInputQuestionProps) {
   const [inputValue, setInputValue] = useState(value);
   const [isFocused, setIsFocused] = useState(false);
@@ -34,9 +36,12 @@ export default function TextInputQuestion({
       // Allow default behavior (new line)
       return;
     }
-    // Prevent form submission on Enter for input fields
-    if (event.key === 'Enter' && type !== 'long_text') {
+    // Handle Enter key press to trigger form submission
+    if (event.key === 'Enter') {
       event.preventDefault();
+      if (onSubmit) {
+        onSubmit();
+      }
     }
   };
 

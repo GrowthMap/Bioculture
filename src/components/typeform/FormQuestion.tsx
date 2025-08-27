@@ -57,7 +57,7 @@ export default function FormQuestion({
 	};
 
 	return (
-		<div className="min-h-screen bg-[#222222] flex flex-col p-4">
+		<div className="bg-[#222222] flex flex-col p-4">
 			<div className="flex-1 flex items-center justify-center">
 				<motion.div
 					className={`w-full ${question.imageUrl ? 'max-w-6xl' : 'max-w-2xl'}`}
@@ -67,8 +67,9 @@ export default function FormQuestion({
 					variants={questionVariants}
 					transition={{ type: 'tween', duration: 0.7, ease: 'easeInOut' }}
 				>
-					<div className={`${question.imageUrl ? 'flex items-center gap-12' : ''}`}>
-						<div className="flex-1">
+					<div className={`${question.imageUrl ? 'flex flex-col lg:flex-row lg:items-center lg:gap-12' : ''}`}>
+						<div className={`flex-1 ${question.imageUrl ? 'lg:order-1' : ''}`}>
+							{/* Question title and description - on top for mobile */}
 							<div className="mb-8">
 								<motion.h1
 									className="text-2xl md:text-3xl font-bold text-white mb-4 font-sans"
@@ -91,8 +92,27 @@ export default function FormQuestion({
 								)}
 							</div>
 
+							{/* Image section - after question title for mobile, hidden on desktop (shown as sibling) */}
+							{question.imageUrl && (
+								<motion.div
+									className="flex items-center justify-center mb-8 lg:hidden"
+									initial={{ opacity: 0, y: 20 }}
+									animate={{ opacity: 1, y: 0 }}
+									transition={{ delay: 0.2, duration: 0.6 }}
+								>
+									<Image
+										width={500}
+										height={500}
+										src={question.imageUrl}
+										alt="Question illustration"
+										className="w-full h-auto max-w-md object-cover rounded-lg"
+									/>
+								</motion.div>
+							)}
+
+							{/* Options section - last for mobile */}
 							<motion.div
-								className="mb-8 max-h-[60vh] overflow-y-auto pr-2"
+								className="mb-8 pr-2"
 								initial={{ opacity: 0, y: 20 }}
 								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 0.4, duration: 0.6 }}
@@ -101,9 +121,9 @@ export default function FormQuestion({
 							</motion.div>
 
 							<motion.div
-								className="flex items-center gap-3.5 sticky bottom-0 bg-[#222222] pt-4 px-2"
-								// initial={{ opacity: 0 }}
-								// animate={{ opacity: 1 }}
+								className="flex items-center gap-3.5 pb-5 bg-[#222222] pt-4 px-2"
+								initial={{ opacity: 0 }}
+								animate={{ opacity: 1 }}
 								transition={{ delay: 0.6, duration: 0.6 }}
 							>
 								<motion.button
@@ -124,12 +144,13 @@ export default function FormQuestion({
 								</motion.button>
 							</motion.div>
 						</div>
-						
+
+						{/* Image section - on right for desktop only */}
 						{question.imageUrl && (
 							<motion.div
-								className="flex-1 flex items-center justify-center"
-								initial={{ opacity: 0, x: 50 }}
-								animate={{ opacity: 1, x: 0 }}
+								className="hidden lg:flex flex-1 lg:order-2 items-center justify-center"
+								initial={{ opacity: 0, y: 20 }}
+								animate={{ opacity: 1, y: 0 }}
 								transition={{ delay: 0.2, duration: 0.6 }}
 							>
 								<Image

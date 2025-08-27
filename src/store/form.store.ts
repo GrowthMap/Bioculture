@@ -9,6 +9,7 @@ const initialState: FormState = {
 	isStarted: false,
 	isSubmitting: false,
 	submissionError: null,
+	contactInfoSent: false,
 };
 
 export const useFormStore = create<FormStore>((set, get) => ({
@@ -50,19 +51,20 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				answers: [],
 				isCompleted: false,
 				isStarted: true,
+				contactInfoSent: false,
 			},
 		})),
 
 	nextQuestion: () =>
 		set((state) => {
-			const { currentQuestionIndex, currentFlow, answers } = state.formState;
+			const { currentQuestionIndex, currentFlow, answers, contactInfoSent } = state.formState;
 			if (!currentFlow) return state;
 
 			const currentQuestion = currentFlow.questions[currentQuestionIndex];
 			if (!currentQuestion) return state;
 			console.log('before api calling');
-			// Send contact info to API when moving away from contact_info question
-			if (currentQuestion.id === 'contact_info') {
+			// Send contact info to API when moving away from contact_info question (only once)
+			if (currentQuestion.id === 'contact_info' && !contactInfoSent) {
 
 				const contactAnswer = answers.find(a => a.questionId === 'contact_info');
 				console.log('Contact answer found:', contactAnswer);
@@ -84,6 +86,9 @@ export const useFormStore = create<FormStore>((set, get) => ({
 
 					console.log('API payload:', payload);
 
+					// Mark as sent immediately to prevent duplicate calls
+					state.formState.contactInfoSent = true;
+
 					// Send to API endpoint
 					fetch('https://primary-production-968c.up.railway.app/webhook/personal-info-bioculture', {
 				method: 'POST',
@@ -101,6 +106,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
 					})
 					.catch(error => {
 				console.error('Failed to send contact info to API:', error);
+				// Don't reset the flag on error to prevent retries on every scroll
 					});
 				} else {
 					console.log('No contact answer found or value is empty');

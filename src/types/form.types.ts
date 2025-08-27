@@ -63,6 +63,7 @@ export interface FormState {
 	isStarted: boolean;
 	isSubmitting: boolean;
 	submissionError: string | null;
+	contactInfoSent: boolean;
 }
 
 export interface FormStore {

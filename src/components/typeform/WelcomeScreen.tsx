@@ -22,7 +22,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
   }, [onStart]);
 
   return (
-    <div className="min-h-screen bg-[#222222] flex items-center justify-center p-4">
+    <div className="bg-[#222222] flex items-center justify-center min-h-[calc(100vh-80px)] p-4">
       <motion.div
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
@@ -53,7 +53,7 @@ export default function WelcomeScreen({ onStart }: WelcomeScreenProps) {
             animate={{ opacity: 1, scale: 1 }}
             transition={{ delay: 0.6, duration: 0.4, ease: 'easeOut' }}
             onClick={onStart}
-            className="bg-white text-black px-8 py-3.5 text-lg font-semibold rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#222222] ml-[120px]"
+            className="bg-white text-black px-8 py-3.5 text-lg font-semibold rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-white focus:ring-offset-2 focus:ring-offset-[#222222]"
           >
             Start
           </motion.button>

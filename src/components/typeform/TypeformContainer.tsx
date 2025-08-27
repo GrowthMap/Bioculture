@@ -186,6 +186,7 @@ export default function TypeformContainer() {
             value={currentAnswer as string}
             onChange={handleAnswerChange}
             placeholder={currentQuestion.placeholder}
+            onSubmit={isValid() ? handleNext : undefined}
           />
         );
       case 'contact_matrix':
@@ -223,7 +224,7 @@ export default function TypeformContainer() {
   // Handle form submission states
   if (formState.isSubmitting || formState.submissionError) {
     return (
-      <div className="min-h-screen bg-[#222222] flex items-center justify-center p-4">
+      <div className="min-h-[calc(100vh-80px)] bg-[#222222] flex items-center justify-center p-4">
         <div className="text-center">
           {formState.isSubmitting && (
             <>
@@ -246,8 +247,7 @@ export default function TypeformContainer() {
   return (
     <div 
       ref={containerRef}
-      className="min-h-screen overflow-hidden relative"
-      style={{ height: '100vh' }}
+      className="min-h-[calc(100vh-80px)] flex items-center justify-center "
     >
       <AnimatePresence mode="wait">
         <FormQuestion
