@@ -75,11 +75,10 @@ export const useFormStore = create<FormStore>((set, get) => ({
 					console.log('Contact info value:', contactInfo);
 
 					const payload = {
-				firstName: contactInfo.firstName || '',
-				lastName: contactInfo.lastName || '',
-				email: contactInfo.email || '',
-				phone: contactInfo.phone || '',
-				website: contactInfo.website || '',
+				firstName: contactInfo.firstName || 'The user did not fill in that field',
+				lastName: contactInfo.lastName || 'The user did not fill in that field',
+				email: contactInfo.email || 'The user did not fill in that field',
+				phone: contactInfo.phone || 'The user did not fill in that field',
 				applicationFlow: currentFlow.name || '',
 				timestamp: new Date().toISOString()
 					};
@@ -214,15 +213,47 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				console.log('🌐 Starting API call to bioculture-application webhook...');
 				console.log('📍 API Endpoint: https://primary-production-968c.up.railway.app/webhook/bioculture-application');
 
-				// Prepare comprehensive payload with all answers including question titles
-				const answersWithTitles = answers.map((answer, index) => {
-					const question = currentFlow.questions.find(q => q.id === answer.questionId);
+				// Prepare comprehensive payload with all questions from the flow
+				const answersWithTitles = currentFlow.questions.map((question, index) => {
+					// Skip description-only questions (company_information type)
+					if (question.type === 'company_information') {
+						return null;
+					}
+					
+					// Find the user's answer for this question
+					const userAnswer = answers.find(a => a.questionId === question.id);
+					let processedValue = userAnswer?.value;
+					
+					// Handle empty or missing values
+					if (!processedValue || 
+						(typeof processedValue === 'string' && processedValue.trim() === '') ||
+						(Array.isArray(processedValue) && processedValue.length === 0) ||
+						(typeof processedValue === 'object' && processedValue !== null && Object.keys(processedValue).length === 0)) {
+						processedValue = 'The user did not fill in that field';
+					}
+					
+					// Handle contact info object with empty fields
+					if (typeof processedValue === 'object' && processedValue !== null && !Array.isArray(processedValue)) {
+						// eslint-disable-next-line @typescript-eslint/no-explicit-any
+						const contactInfo = processedValue as any;
+						if (contactInfo.firstName !== undefined || contactInfo.lastName !== undefined || 
+							contactInfo.email !== undefined || contactInfo.phone !== undefined) {
+							processedValue = {
+								firstName: contactInfo.firstName || 'The user did not fill in that field',
+								lastName: contactInfo.lastName || 'The user did not fill in that field',
+								email: contactInfo.email || 'The user did not fill in that field',
+								phone: contactInfo.phone || 'The user did not fill in that field',
+								website: contactInfo.website || 'The user did not fill in that field'
+							};
+						}
+					}
+					
 					return {
 						questionId: index + 1,
-						questionTitle: question?.title || answer.questionId,
-						value: answer.value
+						questionTitle: question.title,
+						value: processedValue
 					};
-				});
+				}).filter(item => item !== null); // Remove null entries (company_information questions)
 
 				const payload = {
 					applicationFlow: currentFlow.name,
@@ -245,7 +276,7 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				};
 
 				console.log('📦 Complete form payload:', JSON.stringify(payload, null, 2));
-
+				localStorage.setItem('payload', JSON.stringify(payload));
 				// Send to the correct bioculture-application endpoint
 				console.log('📡 Making API call...');
 				const startTime = Date.now();
