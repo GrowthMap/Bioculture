@@ -64,6 +64,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
 			const currentQuestion = currentFlow.questions[currentQuestionIndex];
 			if (!currentQuestion) return state;
 			console.log('before api calling');
+			// Get campaign data from localStorage
+			const campaignData = getCampaignData() || {};
 			// Send contact info to API when moving away from contact_info question (only once)
 			if (currentQuestion.id === 'contact_info' && !contactInfoSent) {
 
@@ -81,7 +83,8 @@ export const useFormStore = create<FormStore>((set, get) => ({
 				email: contactInfo.email || 'The user did not fill in that field',
 				phone: contactInfo.phone || 'The user did not fill in that field',
 				applicationFlow: currentFlow.name || '',
-				timestamp: new Date().toISOString()
+				timestamp: new Date().toISOString(),
+				...campaignData,
 					};
 
 					console.log('API payload:', payload);
