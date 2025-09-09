@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Ubuntu } from "next/font/google";
 import "./globals.css";
+import CampaignTracker from "@/components/CampaignTracker";
+import { FacebookPixel } from "@/components/FacebookPixcel";
 
 const ubuntu = Ubuntu({
   variable: "--font-ubuntu",
@@ -22,6 +24,8 @@ export default function RootLayout({
       <body
         className={`${ubuntu.variable} antialiased`}
       >
+        <FacebookPixel />
+        <CampaignTracker />
         {children}
       </body>
     </html>

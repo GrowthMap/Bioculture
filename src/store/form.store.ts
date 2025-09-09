@@ -1,5 +1,6 @@
 import { create } from 'zustand';
 import { FormStore, FormState, FormAnswer, FormFlow } from '@/types/form.types';
+import { getCampaignData } from '@/utils/campaign-tracking';
 
 const initialState: FormState = {
 	currentQuestionIndex: 0,
@@ -255,11 +256,15 @@ export const useFormStore = create<FormStore>((set, get) => ({
 					};
 				}).filter(item => item !== null); // Remove null entries (company_information questions)
 
+				// Get campaign data from localStorage
+				const campaignData = getCampaignData() || {};
+
 				const payload = {
 					applicationFlow: currentFlow.name,
 					flowId: currentFlow.id,
 					answers: answersWithTitles,
 					submissionTimestamp: new Date().toISOString(),
+					...campaignData,
 					// Extract commonly used fields for easier processing
 					// contactInfo: answers.find(a => a.questionId === 'contact_info')?.value || null,
 					// companyWebsite: answers.find(a => a.questionId === 'company_website')?.value || null,
